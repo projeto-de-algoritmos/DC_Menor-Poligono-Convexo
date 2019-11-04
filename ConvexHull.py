@@ -1,7 +1,5 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
-
-points = []
-point = () #Declarando tupla de coordenada
+from QuickHull import *
 
 class ImageScroller(QtWidgets.QWidget):
     def __init__(self):
@@ -10,6 +8,8 @@ class ImageScroller(QtWidgets.QWidget):
         self._image = QtGui.QPixmap("image.png")
 
     def paintEvent(self, paint_event):
+        points = []
+        polygonPoints = []
         painter = QtGui.QPainter(self)
         painter.drawPixmap(self.rect(), self._image)
         # pen = QtGui.QPen()
@@ -19,39 +19,21 @@ class ImageScroller(QtWidgets.QWidget):
         painter.setBrush(QtGui.QBrush(QtCore.Qt.black, QtCore.Qt.SolidPattern))
         # painter.drawLine(100, 100, 400, 400)
         for pos in self.chosen_points:
-            print(pos.x(), pos.y())
-            point = (pos.x(),pos.y())
-            points.append(point) # Adicionando pontos na lista de pontos
-            calculateConvexHull(points)
+            points.append((pos.x(), pos.y()))
             painter.drawEllipse(pos, 5, 5)
+
+        for point in makeHull(points):
+            polygonPoints.append(QtCore.QPoint(point[0], point[1]))
+        print('poligono ', polygonPoints)
+
+        painter.setBrush(QtGui.QBrush(QtCore.Qt.transparent))
+
+        poly = QtGui.QPolygon(polygonPoints)
+        painter.drawPolygon(poly)
 
     def mouseReleaseEvent(self, cursor_event):
         self.chosen_points.append(cursor_event.pos())
         self.update()
-
-def calculateConvexHull(points):
-    x = 2
-
-# Determina quadrante de um par de pontos
-def quadrant(point): 
-    if (point[0] >= 0 and point[1] >= 0): # Primeiro quadrante
-        return 1
-    if (point[0] <= 0 and point[1] >= 0): # Segundo quadrante
-        return 2
-    if (point[0] <= 0 and point[1] <= 0): # Terceiro quadrante
-        return 3
-    return 4
-
-# Checa se linha cruza o polígono
-def orientation( point1 , point2, point3):
-    result = (point2[1]-point1[1])*(point3[0]-point2[0]) - (point3[1]-point2[1])*(point2[0]-point1[0])
-    if (result == 0):
-        return 0
-    if (result > 0): 
-        return 1
-    return -1
-
-
 
 
 if __name__ == '__main__':
