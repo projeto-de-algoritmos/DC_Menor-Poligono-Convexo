@@ -13,7 +13,7 @@
 Implementar algorítimo que calcula o menor polígono convexo que contém todos os pontos desenhados.
 
 ## Screenshots
-
+![poligono](https://ibin.co/50ntaTEw4LKD.png)
 
 ## Instalação 
 **Linguagem**: Python<br>
@@ -21,7 +21,7 @@ Implementar algorítimo que calcula o menor polígono convexo que contém todos 
 sudo apt-get install python3-pyqt5
 
 ## Uso 
-python3 ConvexHull.py
+python3 main.py
 
 
 
