@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from QuickHull import *
+from GrahamHull import *
 
 class ImageScroller(QtWidgets.QWidget):
     def __init__(self):
@@ -9,7 +10,8 @@ class ImageScroller(QtWidgets.QWidget):
 
     def paintEvent(self, paint_event):
         points = []
-        polygonPoints = []
+        polygonPointsQuick = []
+        polygonPointsGraham = []
         painter = QtGui.QPainter(self)
         painter.drawPixmap(self.rect(), self._image)
         # pen = QtGui.QPen()
@@ -22,14 +24,48 @@ class ImageScroller(QtWidgets.QWidget):
             points.append((pos.x(), pos.y()))
             painter.drawEllipse(pos, 5, 5)
 
-        for point in makeHull(points):
-            polygonPoints.append(QtCore.QPoint(point[0], point[1]))
-        print('poligono ', polygonPoints)
+        import time 
+        
+        start_quick_time = time.time()
+        points_by_quick = makeHull(points)
+        end_quick_time = time.time()
+
+        total_quick_time = end_quick_time - start_quick_time
+
+        start_graham_time = time.time()
+        points_by_graham = convex_hull_graham(points)
+        end_graham_time = time.time()
+
+        total_graham_time = end_graham_time - start_graham_time
+
+        print("\n===================================================")
+        print("Tempo de execução do Quick Hull: ", total_quick_time)
+        print("Tempo de execução do Graham Hull: ", total_graham_time)
+        print("===================================================\n")
+
+        for point in points_by_quick:
+            start_quick_time = time.time()
+            polygonPointsQuick.append(QtCore.QPoint(point[0], point[1]))
+        print('\n\npoligono QuickHull', polygonPointsQuick)
 
         painter.setBrush(QtGui.QBrush(QtCore.Qt.transparent))
+        # painter.setBrush(QtGui.QColor('black'))
 
-        poly = QtGui.QPolygon(polygonPoints)
+        poly = QtGui.QPolygon(polygonPointsQuick)
         painter.drawPolygon(poly)
+        
+
+        for point in convex_hull_graham(points):
+            polygonPointsGraham.append(QtCore.QPoint(point[0], point[1]))
+        print('\n\npoligono GrahamHull', polygonPointsGraham)
+
+        # painter.setBrush(QtGui.QBrush(QtCore.Qt.transparent))
+
+        painter.setBrush(QtGui.QColor(255, 0, 0, 127))
+
+        poly = QtGui.QPolygon(polygonPointsGraham)
+        painter.drawPolygon(poly)
+
 
     def mouseReleaseEvent(self, cursor_event):
         self.chosen_points.append(cursor_event.pos())
